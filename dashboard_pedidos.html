@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Gestión de Pedidos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 text-white p-6 hidden md:block">
+      <h2 class="text-2xl font-bold mb-6">Camseg</h2>
+      <nav class="space-y-4">
+        <a href="index.html" class="block hover:bg-gray-600 p-2 rounded">Inicio</a>
+        <a href="#" class="block hover:bg-gray-600 p-2 rounded">Mis Pedidos</a>
+        <a href="#" onclick="mostrarPerfil()" class="block hover:bg-gray-600 p-2 rounded">Perfil</a>
+
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <header class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Mis Pedidos</h1>
+        <div class="flex space-x-2">
+              <button onclick="location.reload()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Actualizar</button>
+<button onclick="abrirModalAgregarPedido()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">
+  Agregar Pedido
+</button>       </div>
+
+        
+      </header>
+
+      <!-- Tabla -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow rounded-lg" id="tablaPedidos">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="py-3 px-6 text-left">Servicio</th>
+              <th class="py-3 px-6 text-left">Detalles</th>
+              <th class="py-3 px-6 text-left">Fecha Solicitud</th>
+              <th class="py-3 px-6 text-left">Estado</th>
+              <th class="py-3 px-6 text-left">Precio</th>
+              <th class="py-3 px-6 text-left">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla" class="text-gray-700"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalEditar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Editar Pedido</h2>
+      <form id="formEditar">
+        <label class="block mb-2 font-medium">Lugar de instalación:</label>
+        <select id="lugar" class="w-full border p-2 rounded mb-4" required>
+          <option value="casa">Casa</option>
+          <option value="departamento">Departamento</option>
+          <option value="edificio">Edificio</option>
+        </select>
+        <div class="mb-4">
+          <label class="block mb-1">Cámaras exteriores:</label>
+          <input type="number" id="camarasExteriores" min="0" class="w-full border p-2 rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">Cámaras interiores:</label>
+          <input type="number" id="camarasInteriores" min="0" class="w-full border p-2 rounded" required>
+        </div>
+        <label class="block mb-2 font-medium">Tecnología:</label>
+        <div class="flex gap-4 mb-4">
+          <label><input type="radio" name="tecnologia" value="IP" required> IP</label>
+          <label><input type="radio" name="tecnologia" value="Analoga" required> Analoga</label>
+        </div>
+        <div class="mb-4">
+          <button type="button" id="calcularBtn" class="bg-gray-600 text-white px-4 py-2 rounded">Calcular Precio</button>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">Precio estimado:</label>
+          <input type="text" id="precio" readonly class="w-full border p-2 rounded bg-gray-100">
+        </div>
+        <input type="hidden" id="editId">
+        <button type="submit" class="bg-gray-400 text-white px-4 py-2 rounded w-full">Actualizar Pedido</button>
+        <button type="button" onclick="cerrarModal()" class="mt-2 text-red-500 underline w-full">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+<div id="modalAgregarPedido" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full relative">
+    <button onclick="cerrarModalAgregarPedido()" class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl font-bold">&times;</button>
+    <h1 class="text-2xl font-bold mb-4 text-center">Rellena el formulario</h1>
+
+    <form id="formularioAgregarPedido">
+      <label class="block mb-2 font-medium">Lugar de instalación:</label>
+      <select id="modalLugar" class="w-full border p-2 rounded mb-4" required>
+        <option value="casa">Casa</option>
+        <option value="departamento">Departamento</option>
+        <option value="edificio">Edificio</option>
+      </select>
+
+      <label class="block mb-1">Cámaras exteriores:</label>
+      <input type="number" id="modalCamarasExteriores" min="0" value="0" class="w-full border p-2 rounded mb-4" required>
+
+      <label class="block mb-1">Cámaras interiores:</label>
+      <input type="number" id="modalCamarasInteriores" min="0" value="0" class="w-full border p-2 rounded mb-4" required>
+
+      <label class="block mb-2 font-medium">Tecnología:</label>
+      <div class="flex gap-4 mb-4">
+        <label><input type="radio" name="modalTecnologia" value="IP" required> IP</label>
+        <label><input type="radio" name="modalTecnologia" value="Analoga" required> Analoga</label>
+      </div>
+
+      <button type="button" id="btnCalcularPrecioModal" class="bg-gray-700 text-white px-4 py-2 rounded mb-4 w-full">
+        Calcular Precio
+      </button>
+
+      <label class="block mb-1">Precio estimado:</label>
+      <input type="text" id="modalPrecio" readonly class="w-full border p-2 rounded bg-gray-100 mb-4">
+
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded w-full">Hacer Pedido</button>
+    </form>
+
+    <div id="mensajeExitoModal" class="hidden mt-4 text-green-600 text-center font-semibold">
+      Pedido enviado con éxito.
+    </div>
+  </div>
+</div>
+
+
+  <script>
+
+ function abrirModalAgregarPedido() {
+    document.getElementById('modalAgregarPedido').classList.remove('hidden');
+  }
+
+  function cerrarModalAgregarPedido() {
+    document.getElementById('modalAgregarPedido').classList.add('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const cliente = JSON.parse(localStorage.getItem('cliente'));
+    if (!cliente || !cliente.id) return;
+
+    const calcularBtn = document.getElementById('btnCalcularPrecioModal');
+    const precioInput = document.getElementById('modalPrecio');
+
+    calcularBtn.addEventListener('click', () => {
+      const camExt = parseInt(document.getElementById('modalCamarasExteriores').value) || 0;
+      const camInt = parseInt(document.getElementById('modalCamarasInteriores').value) || 0;
+      const total = (camExt * 90) + (camInt * 40) + 200;
+      precioInput.value = total;
+    });
+
+    document.getElementById('formularioAgregarPedido').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const lugar = document.getElementById('modalLugar').value;
+      const camExt = parseInt(document.getElementById('modalCamarasExteriores').value) || 0;
+      const camInt = parseInt(document.getElementById('modalCamarasInteriores').value) || 0;
+      const tecnologia = document.querySelector('input[name="modalTecnologia"]:checked').value;
+      const precio = parseFloat(document.getElementById('modalPrecio').value);
+
+      if (isNaN(precio) || precio <= 0) {
+        alert('Primero debes calcular el precio.');
+        return;
+      }
+
+      const hoy = new Date().toISOString().split('T')[0];
+      const detalles = `Lugar: ${lugar}; Cámaras exteriores: ${camExt}; Cámaras interiores: ${camInt}; Tecnología: ${tecnologia}`;
+
+      const datos = {
+        cliente_id: cliente.id,
+        servicio: "Instalación",
+        detalles: detalles,
+        precio_estimado: precio,
+        fecha_solicitud: hoy,
+        estado: "pendiente"
+      };
+
+      try {
+        const response = await fetch('http://192.168.1.5:8000/api/pedidos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(datos)
+        });
+
+        if (response.ok) {
+          document.getElementById('mensajeExitoModal').classList.remove('hidden');
+          e.target.reset();
+          precioInput.value = '';
+          setTimeout(cerrarModalAgregarPedido, 1500);
+        } else {
+          alert('Hubo un error al enviar el pedido.');
+        }
+      } catch (error) {
+        console.error('Error de red:', error);
+        alert('No se pudo conectar con el servidor.');
+      }
+    });
+  });
+
+
+    const API_URL = 'http://192.168.1.5:8000/api/pedidos';
+
+    document.addEventListener('DOMContentLoaded', cargarPedidos);
+    document.getElementById('formEditar').addEventListener('submit', actualizarPedido);
+    document.getElementById('calcularBtn').addEventListener('click', calcularPrecio);
+
+    function cargarPedidos() {
+      const cliente = JSON.parse(localStorage.getItem('cliente'));
+      if (!cliente || !cliente.id) {
+        alert('Debes iniciar sesión para ver tus pedidos.');
+        return;
+      }
+
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          const cuerpo = document.getElementById('cuerpoTabla');
+          cuerpo.innerHTML = '';
+
+          const pedidosCliente = data.filter(p => p.cliente_id === cliente.id);
+
+          pedidosCliente.forEach(pedido => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+              <td class="border px-4 py-2">${pedido.servicio}</td>
+              <td class="border px-4 py-2">${pedido.detalles}</td>
+              <td class="border px-4 py-2">${pedido.fecha_solicitud}</td>
+              <td class="border px-4 py-2">${pedido.estado}</td>
+              <td class="border px-4 py-2">s/${pedido.precio_estimado}</td>
+              <td class="border px-4 py-2 space-x-2">
+<button onclick="abrirModalEditar(${pedido.pedido_id})" class="bg-[#354461] text-white px-2 py-1 rounded">Editar</button>
+                <button onclick="eliminarPedido(${pedido.pedido_id})" class="bg-red-500 text-white px-2 py-1 rounded">Eliminar</button>
+              </td>
+            `;
+            cuerpo.appendChild(fila);
+          });
+        })
+        .catch(err => {
+          console.error('Error al cargar pedidos:', err);
+          alert('No se pudieron cargar los pedidos.');
+        });
+    }
+
+    async function eliminarPedido(id) {
+      if (!confirm(`¿Estás seguro de eliminar el pedido ${id}?`)) return;
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert(`Pedido ${id} eliminado correctamente.`);
+          cargarPedidos();
+        } else {
+          alert('Error al eliminar el pedido.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error de conexión.');
+      }
+    }
+
+    async function abrirModalEditar(id) {
+      try {
+        const res = await fetch(`${API_URL}/${id}`);
+        const pedido = await res.json();
+
+        document.getElementById('editId').value = pedido.pedido_id;
+        document.getElementById('lugar').value = pedido.servicio;
+        document.getElementById('camarasExteriores').value = pedido.detalles.match(/exteriores: (\d+)/)?.[1] || 0;
+        document.getElementById('camarasInteriores').value = pedido.detalles.match(/interiores: (\d+)/)?.[1] || 0;
+
+        const tecnologia = pedido.detalles.includes('IP') ? 'IP' : 'Analoga';
+        document.querySelector(`input[name="tecnologia"][value="${tecnologia}"]`).checked = true;
+
+        document.getElementById('precio').value = pedido.precio_estimado;
+
+        document.getElementById('modalEditar').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert('No se pudo cargar el pedido.');
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalEditar').classList.add('hidden');
+    }
+
+    function calcularPrecio() {
+      const ext = parseInt(document.getElementById('camarasExteriores').value) || 0;
+      const int = parseInt(document.getElementById('camarasInteriores').value) || 0;
+      const tecnologia = document.querySelector('input[name="tecnologia"]:checked')?.value || '';
+      let precioBase = tecnologia === 'IP' ? 50 : 30;
+      const precioTotal = (ext + int) * precioBase;
+      document.getElementById('precio').value = precioTotal.toFixed(2);
+    }
+
+    async function actualizarPedido(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const servicio = "Instalación"; // Valor fijo y correcto
+      const lugar = document.getElementById('lugar').value;
+      const exteriores = document.getElementById('camarasExteriores').value;
+      const interiores = document.getElementById('camarasInteriores').value;
+      const tecnologia = document.querySelector('input[name="tecnologia"]:checked').value;
+      const precio = document.getElementById('precio').value;
+
+      const detalles = `Lugar: ${lugar}; Cámaras exteriores: ${exteriores}; Cámaras interiores: ${interiores}; Tecnología: ${tecnologia}`;
+
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          servicio, // "Instalación"
+          detalles,
+          precio_estimado: precio
+        })
+      });
+
+        if (res.ok) {
+          alert('Pedido actualizado');
+          cerrarModal();
+          cargarPedidos();
+        } else {
+          alert('Error al actualizar pedido.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error al conectar con el servidor.');
+      }
+    }
+
+    function mostrarPerfil() {
+  const cliente = JSON.parse(localStorage.getItem('cliente'));
+  if (!cliente) {
+    alert('Debes iniciar sesión');
+    return;
+  }
+
+  const perfilDiv = document.getElementById('perfilContenido');
+  perfilDiv.innerHTML = `
+    <p><strong>Nombre:</strong> ${cliente.nombre}</p>
+    <p><strong>Email:</strong> ${cliente.email}</p>
+    <p><strong>DNI:</strong> ${cliente.dni}</p>
+    <p><strong>Teléfono:</strong> ${cliente.telefono}</p>
+    <p><strong>Dirección:</strong> ${cliente.direccion}</p>
+  `;
+
+  document.getElementById('perfilModal').classList.remove('hidden');
+}
+
+function cerrarPerfil() {
+  document.getElementById('perfilModal').classList.add('hidden');
+}
+
+  </script>
+</body>
+<!-- Modal de Perfil -->
+<div id="perfilModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-6 rounded-lg w-full max-w-sm">
+    <h2 class="text-xl font-bold mb-4">Mi Perfil</h2>
+    <div id="perfilContenido" class="space-y-2 text-gray-700">
+      <!-- Aquí se insertarán los datos del usuario -->
+    </div>
+    <button onclick="cerrarPerfil()" class="mt-4 text-blue-600 underline w-full">Cerrar</button>
+  </div>
+</div>
+</html>

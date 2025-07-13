@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Pedidos</title>
+  <script defer src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-2xl font-bold mb-6">Lista de Pedidos</h1>
+
+  <table class="min-w-full bg-white shadow-md rounded mb-6" id="tablaPedidos">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="py-2 px-4 border">ID</th>
+        <th class="py-2 px-4 border">Cliente ID</th>
+        <th class="py-2 px-4 border">Servicio</th>
+        <th class="py-2 px-4 border">Detalles</th>
+        <th class="py-2 px-4 border">Fecha Solicitud</th>
+        <th class="py-2 px-4 border">Estado</th>
+        <th class="py-2 px-4 border">Precio</th>
+        <th class="py-2 px-4 border">Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="cuerpoTabla"></tbody>
+  </table>
+
+  <!-- Modal de Edición -->
+  <div id="modalEditar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Editar Pedido</h2>
+      <form id="formEditar">
+
+        <label class="block mb-2 font-medium">Lugar de instalación:</label>
+        <select id="lugar" class="w-full border p-2 rounded mb-4" required>
+          <option value="casa">Casa</option>
+          <option value="departamento">Departamento</option>
+          <option value="edificio">Edificio</option>
+        </select>
+
+        <div class="mb-4">
+          <label class="block mb-1">Cámaras exteriores:</label>
+          <input type="number" id="camarasExteriores" min="0" class="w-full border p-2 rounded" required>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">Cámaras interiores:</label>
+          <input type="number" id="camarasInteriores" min="0" class="w-full border p-2 rounded" required>
+        </div>
+
+        <label class="block mb-2 font-medium">Tecnología:</label>
+        <div class="flex gap-4 mb-4">
+          <label><input type="radio" name="tecnologia" value="IP" required> IP</label>
+          <label><input type="radio" name="tecnologia" value="Analoga" required> Analoga</label>
+        </div>
+
+        <div class="mb-4">
+          <button type="button" id="calcularBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Calcular Precio</button>
+        </div>
+
+        <div class="mb-4">
+          <label class="block mb-1">Precio estimado:</label>
+          <input type="text" id="precio" readonly class="w-full border p-2 rounded bg-gray-100">
+        </div>
+
+        <input type="hidden" id="editId">
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded w-full">Actualizar Pedido</button>
+        <button type="button" onclick="cerrarModal()" class="mt-2 text-red-500 underline w-full">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://192.168.1.5:8000/api/pedidos';
+
+    document.addEventListener('DOMContentLoaded', cargarPedidos);
+    document.getElementById('formEditar').addEventListener('submit', actualizarPedido);
+    document.getElementById('calcularBtn').addEventListener('click', calcularPrecio);
+
+    function cargarPedidos() {
+  const cliente = JSON.parse(localStorage.getItem('cliente'));
+  if (!cliente || !cliente.id) {
+    alert('Debes iniciar sesión para ver tus pedidos.');
+    return;
+  }
+
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      const cuerpo = document.getElementById('cuerpoTabla');
+      cuerpo.innerHTML = '';
+      
+      // Filtrar pedidos del cliente autenticado
+      const pedidosCliente = data.filter(p => p.cliente_id === cliente.id);
+
+      pedidosCliente.forEach(pedido => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td class="border px-4 py-2">${pedido.pedido_id}</td>
+          <td class="border px-4 py-2">${pedido.cliente_id}</td>
+          <td class="border px-4 py-2">${pedido.servicio}</td>
+          <td class="border px-4 py-2">${pedido.detalles}</td>
+          <td class="border px-4 py-2">${pedido.fecha_solicitud}</td>
+          <td class="border px-4 py-2">${pedido.estado}</td>
+          <td class="border px-4 py-2">s/${pedido.precio_estimado}</td>
+          <td class="border px-4 py-2 space-x-2">
+            <button onclick="abrirModalEditar(${pedido.pedido_id})" class="bg-yellow-400 px-2 py-1 rounded">Editar</button>
+            <button onclick="eliminarPedido(${pedido.pedido_id})" class="bg-red-500 text-white px-2 py-1 rounded">Eliminar</button>
+          </td>
+        `;
+        cuerpo.appendChild(fila);
+      });
+    })
+    .catch(err => {
+      console.error('Error al cargar pedidos:', err);
+      alert('No se pudieron cargar los pedidos.');
+    });
+}
+
+
+    async function eliminarPedido(id) {
+      if (!confirm(`¿Estás seguro de eliminar el pedido ${id}?`)) return;
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          alert(`Pedido ${id} eliminado correctamente.`);
+          cargarPedidos();
+        } else {
+          alert('Error al eliminar el pedido.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error de conexión.');
+      }
+    }
+
+    async function abrirModalEditar(id) {
+      try {
+        const res = await fetch(`${API_URL}/${id}`);
+        const pedido = await res.json();
+
+        document.getElementById('editId').value = pedido.pedido_id;
+        document.getElementById('lugar').value = pedido.servicio;
+        document.getElementById('camarasExteriores').value = pedido.detalles.match(/exteriores: (\d+)/)?.[1] || 0;
+        document.getElementById('camarasInteriores').value = pedido.detalles.match(/interiores: (\d+)/)?.[1] || 0;
+
+        const tecnologia = pedido.detalles.includes('IP') ? 'IP' : 'Analoga';
+        document.querySelector(`input[name="tecnologia"][value="${tecnologia}"]`).checked = true;
+
+        document.getElementById('precio').value = pedido.precio_estimado;
+
+        document.getElementById('modalEditar').classList.remove('hidden');
+      } catch (err) {
+        console.error(err);
+        alert('No se pudo cargar el pedido.');
+      }
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalEditar').classList.add('hidden');
+    }
+
+    function calcularPrecio() {
+      const ext = parseInt(document.getElementById('camarasExteriores').value) || 0;
+      const int = parseInt(document.getElementById('camarasInteriores').value) || 0;
+      const tecnologia = document.querySelector('input[name="tecnologia"]:checked')?.value || '';
+      let precioBase = tecnologia === 'IP' ? 50 : 30;
+      const precioTotal = (ext + int) * precioBase;
+      document.getElementById('precio').value = precioTotal.toFixed(2);
+    }
+
+    async function actualizarPedido(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const servicio = document.getElementById('lugar').value;
+      const exteriores = document.getElementById('camarasExteriores').value;
+      const interiores = document.getElementById('camarasInteriores').value;
+      const tecnologia = document.querySelector('input[name="tecnologia"]:checked').value;
+      const precio = document.getElementById('precio').value;
+
+      const detalles = `exteriores: ${exteriores}, interiores: ${interiores}, tecnología: ${tecnologia}`;
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            servicio,
+            detalles,
+            precio_estimado: precio
+          })
+        });
+
+        if (res.ok) {
+          alert('Pedido actualizado');
+          cerrarModal();
+          cargarPedidos();
+        } else {
+          alert('Error al actualizar pedido.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error al conectar con el servidor.');
+      }
+    }
+  </script>
+</body>
+</html>
