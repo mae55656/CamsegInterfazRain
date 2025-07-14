@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Hacer Pedido</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+    <h1 class="text-2xl font-bold mb-6 text-center">Rellena el formulario para calcular su posible costo y solicitar tu pedido</h1>
+
+    <form id="pedidoForm">
+      <label class="block mb-2 font-medium">Lugar de instalación:</label>
+      <select id="lugar" class="w-full border p-2 rounded mb-4" required>
+        <option value="casa">Casa</option>
+        <option value="departamento">Departamento</option>
+        <option value="edificio">Edificio</option>
+      </select>
+
+      <div class="mb-4">
+        <label class="block mb-1">Cámaras exteriores:</label>
+        <input type="number" id="camarasExteriores" min="0" value="0" class="w-full border p-2 rounded" required>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1">Cámaras interiores:</label>
+        <input type="number" id="camarasInteriores" min="0" value="0" class="w-full border p-2 rounded" required>
+      </div>
+
+      <label class="block mb-2 font-medium">Tecnología:</label>
+      <div class="flex gap-4 mb-4">
+        <label><input type="radio" name="tecnologia" value="IP" required> IP</label>
+        <label><input type="radio" name="tecnologia" value="Analoga" required> Analoga</label>
+      </div>
+
+      <div class="mb-4">
+        <button type="button" id="calcularBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Calcular Precio</button>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1">Precio estimado:</label>
+        <input type="text" id="precio" readonly class="w-full border p-2 rounded bg-gray-100">
+      </div>
+
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded w-full">Hacer Pedido</button>
+      <button onclick="window.location.href='dashboard_pedidos.html'" class="bg-orange-600 text-white px-4 py-2 rounded w-full">
+  Ver mis pedidos
+</button>
+    </form>
+
+    <div id="mensaje" class="hidden mt-4 text-green-600 text-center font-semibold">
+      Pedido enviado con éxito.
+    </div>
+  </div>
+
+  <script src="js/pedido.js"></script>
+</body>
+</html>
