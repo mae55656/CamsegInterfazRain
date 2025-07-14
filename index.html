@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CamSeg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="bg-gray-300">
+  <header class="bg-gray-800 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">CamSeg</h1>
+      <nav>
+        <ul class="flex gap-4 items-center">
+          <li><a href="#" class="hover:text-gray-400">Inicio</a></li>
+          <li><a href="#" class="hover:text-gray-400">Nosotros</a></li>
+          <li><a href="#" class="hover:text-gray-400">Contacto</a></li>
+          <li id="nombreCliente" class="text-green-400 font-semibold hidden"></li>
+          <li id="cerrarSesion" class="text-red-400 font-semibold hidden cursor-pointer hover:text-red-600" onclick="cerrarSesion()">
+  Cerrar sesión
+</li>
+          <li><a href="javascript:void(0)" onclick="openModal()" class="hover:text-gray-400">Usuario</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto my-8">
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <div class="mb-4 text-center">
+        <h2 class="text-xl font-semibold mb-2">Bienvenido a CamSeg</h2>
+        <p class="text-gray-600">Nos especializamos en servicios de instalación, mantenimiento y promociones de sistemas de videovigilancia CCTV.</p>
+      </div>
+
+      <div class="mb-6">
+        <img src="IMG/INICIO.jpg" alt="Imagen principal" class="w-full h-60 object-cover rounded-md">
+      </div>
+
+      <h2 class="text-xl font-semibold mb-4">Nuestros Servicios</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div onclick="seleccionarServicio('Promociones')" class="bg-gray-100 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition">
+          <img src="IMG/promociones.jpg" alt="Promociones" class="w-full h-40 object-cover mb-2 rounded-md">
+          <h3 class="text-lg font-bold">Promociones</h3>
+          <p class="text-sm text-gray-600">Ofrecemos las mejores promociones en sistemas de vigilancia.</p>
+        </div>
+        <div onclick="seleccionarServicio('Instalación')" class="bg-gray-100 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition">
+          <img src="IMG/instalaciones.jpg" alt="Instalación" class="w-full h-40 object-cover mb-2 rounded-md">
+          <h3 class="text-lg font-bold">Instalación</h3>
+          <p class="text-sm text-gray-600">Instalación profesional y segura de cámaras CCTV.</p>
+        </div>
+        <div onclick="seleccionarServicio('Mantenimiento')" class="bg-gray-100 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition">
+          <img src="IMG/mantenimiento.jpg" alt="Mantenimiento" class="w-full h-40 object-cover mb-2 rounded-md">
+          <h3 class="text-lg font-bold">Mantenimiento</h3>
+          <p class="text-sm text-gray-600">Mantenimiento preventivo y correctivo para mayor durabilidad.</p>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center">
+        <h2 class="text-xl font-semibold mb-4">Contáctanos</h2>
+        <div class="flex justify-center gap-6">
+          <a href="#" class="text-blue-600 hover:text-blue-800">Facebook</a>
+          <a href="#" class="text-green-500 hover:text-green-700">WhatsApp</a>
+          <a href="#" class="text-pink-500 hover:text-pink-700">Instagram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg w-96 relative">
+      <button onclick="closeModal()" class="absolute top-2 right-4 text-2xl">&times;</button>
+
+      <div id="loginForm">
+        <h2 class="text-xl font-semibold mb-4">Iniciar Sesión</h2>
+        <input type="text" placeholder="Email" class="w-full p-2 mb-4 border border-gray-300 rounded">
+        <input type="password" placeholder="Contraseña" class="w-full p-2 mb-4 border border-gray-300 rounded">
+        <button class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Entrar</button>
+        <p class="text-sm mt-4 text-center">¿No tienes cuenta? <a href="javascript:void(0)" onclick="showRegister()" class="text-blue-600 hover:underline">Regístrate</a></p>
+      </div>
+
+      <div id="registerForm" class="hidden">
+        <h2 class="text-xl font-semibold mb-4">Registrarse</h2>
+        <input type="text" placeholder="Nombre" class="w-full p-2 mb-2 border border-gray-300 rounded">
+        <input type="text" placeholder="DNI" class="w-full p-2 mb-2 border border-gray-300 rounded">
+        <input type="text" placeholder="Teléfono" class="w-full p-2 mb-2 border border-gray-300 rounded">
+        <input type="email" placeholder="Email" class="w-full p-2 mb-2 border border-gray-300 rounded">
+        <input type="text" placeholder="Dirección" class="w-full p-2 mb-2 border border-gray-300 rounded">
+        <input type="password" placeholder="Contraseña" class="w-full p-2 mb-4 border border-gray-300 rounded">
+        <button id="btnRegistrar" class="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">Registrarse</button>
+        <p class="text-sm mt-4 text-center">¿Ya tienes cuenta? <a href="javascript:void(0)" onclick="showLogin()" class="text-blue-600 hover:underline">Inicia sesión</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/index.js"></script>
+
+  <footer class="bg-gray-800 text-white p-4 text-center">
+    <p>© 2025 CamSeg - Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>
