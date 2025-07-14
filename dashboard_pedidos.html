@@ -246,11 +246,13 @@
             `;
             cuerpo.appendChild(fila);
           });
+          lucide.createIcons();
         })
         .catch(err => {
           console.error('Error al cargar pedidos:', err);
           alert('No se pudieron cargar los pedidos.');
         });
+        
     }
 
     async function eliminarPedido(id) {
