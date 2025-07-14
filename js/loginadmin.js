@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = document.getElementById('password').value;
 
     try {
-      const response = await fetch('https://camsegrender-production.up.railway.app/api//loginadmin', {
+      const response = await fetch('https://camsegrender-production.up.railway.app/api/loginadmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

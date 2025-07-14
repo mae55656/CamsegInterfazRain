@@ -235,8 +235,12 @@
               <td class="border px-4 py-2">${pedido.estado}</td>
               <td class="border px-4 py-2">s/${pedido.precio_estimado}</td>
               <td class="border px-4 py-2 space-x-2">
-<button onclick="abrirModalEditar(${pedido.pedido_id})" class="bg-[#354461] text-white px-2 py-1 rounded">Editar</button>
-                <button onclick="eliminarPedido(${pedido.pedido_id})" class="bg-red-500 text-white px-2 py-1 rounded">Eliminar</button>
+                <button onclick="abrirModalEditar(${pedido.pedido_id})"  class="text-blue-600 hover:text-blue-700" title="Editar">
+                <i data-lucide="edit" class="w-5 h-5"></i>
+            </button>
+                <button onclick="eliminarPedido(${pedido.pedido_id})" class="text-red-600 hover:text-red-700" title="Eliminar">
+              <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
               </td>
             `;
             cuerpo.appendChild(fila);
