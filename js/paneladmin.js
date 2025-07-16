@@ -220,7 +220,11 @@ function actualizarPedidos() {
             <button onclick="editarPedido(${pedido.pedido_id})" class="text-blue-600 hover:text-blue-700" title="Editar">
                 <i data-lucide="edit" class="w-5 h-5"></i>
             </button>
-            
+            <button onclick="eliminarPedido(${pedido.pedido_id})" class="text-red-600 hover:text-red-700" title="Eliminar">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
+
+
             </td>
         `;
         cuerpo.appendChild(fila);
@@ -249,6 +253,9 @@ function actualizarClientes() {
           <td class="border px-4 py-2 text-center space-x-2">
             <button onclick="editarCliente(${cliente.id})" class="text-yellow-500 hover:text-yellow-600" title="Editar">
               <i data-lucide="edit" class="w-5 h-5"></i>
+            </button>
+            <button onclick="eliminarCliente(${cliente.id})" class="text-red-600 hover:text-red-700" title="Eliminar">
+              <i data-lucide="trash-2" class="w-5 h-5"></i>
             </button>
 
             
@@ -433,7 +440,9 @@ function actualizarAdministrativos() {
             <button onclick="editarAdministrativo(${admin.id})" class="text-blue-600 hover:text-blue-700" title="Editar">
                 <i data-lucide="edit" class="w-5 h-5"></i>
             </button>
-
+<button onclick="eliminarAdministrativo(${admin.id})" class="text-red-600 hover:text-red-700" title="Eliminar">
+              <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
 
             
           </td>
